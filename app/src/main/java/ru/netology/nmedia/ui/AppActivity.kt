@@ -8,11 +8,13 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        findViewById<StatsView>(R.id.stats).data = listOf(
+        val customView = findViewById<StatsView>(R.id.stats)
+        customView.data = listOf(
             0.25F,
             0.25F,
             0.25F,
             0.25F,
         )
+        customView.dataNotFilled = 1.0F
     }
 }
