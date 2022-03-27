@@ -1,10 +1,7 @@
 package ru.netology.nmedia.ui
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.PointF
-import android.graphics.RectF
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
@@ -26,6 +23,7 @@ class StatsView @JvmOverloads constructor(
     private var lineWidth = AndroidUtils.dp(context, 5F).toFloat()
     private var fontSize = AndroidUtils.dp(context, 40F).toFloat()
     private var colors = emptyList<Int>()
+    private var colorEmpty: Int = Color.parseColor("#cccccc")
 
     init {
         context.withStyledAttributes(attrs, R.styleable.StatsView) {
@@ -94,6 +92,12 @@ class StatsView @JvmOverloads constructor(
             invalidate()
         }
 
+    var dataNotFilled: Float = 0F
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         radius = min(w, h) / 2F - lineWidth / 2
         center = PointF(w / 2F, h / 2F)
@@ -108,24 +112,27 @@ class StatsView @JvmOverloads constructor(
             return
         }
 
+        paint.color = colorEmpty
+        canvas.drawCircle(center.x, center.y, radius, paint)
+
         var startFrom = -90F
-        val sum = data.sum()
+        val dataSum = data.sum()
+        val totalSum = dataSum + dataNotFilled
         for ((index, datum) in data.withIndex()) {
-            val angle = 360F * (datum / sum)
+            val angle = 360F * (datum / totalSum)
             paint.color = colors.getOrNull(index) ?: randomColor()
             canvas.drawArc(oval, startFrom, angle, false, paint)
             startFrom += angle
         }
 
-        if (data.isNotEmpty()) {
-            //На самом деле в ветку с randomColor() никогда не попадаем,
-            //так как 0-ой цвет вычисляется раньше
-            paint.color = colors.getOrNull(0) ?: randomColor()
-            canvas.drawPoint(center.x, center.y - radius, paint)
-        }
+        //На самом деле в ветку с randomColor() никогда не попадаем,
+        //так как 0-ой цвет вычисляется раньше
+        paint.color = colors.getOrNull(0) ?: randomColor()
+        canvas.drawPoint(center.x, center.y - radius, paint)
+
 
         canvas.drawText(
-            "%.2f%%".format(100F),
+            "%.2f%%".format(dataSum / totalSum * 100),
             center.x,
             center.y + textPaint.textSize / 4,
             textPaint,
