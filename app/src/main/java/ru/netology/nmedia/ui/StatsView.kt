@@ -117,6 +117,11 @@ class StatsView @JvmOverloads constructor(
             startFrom += angle
         }
 
+        //На самом деле в ветку с randomColor() никогда не попадаем,
+        //так как 0-ой цвет вычисляется раньше
+        paint.color = colors.getOrNull(0) ?: randomColor()
+        canvas.drawPoint(center.x, center.y - radius, paint)
+
         canvas.drawText(
             "%.2f%%".format(100F),
             center.x,
